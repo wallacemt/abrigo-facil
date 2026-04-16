@@ -1,14 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import logger from '@/utils/logger';
 import ApiError from '@/utils/ApiError';
-import {env} from '@/config/env';
+import { env } from '@/config/env';
 
 const errorHandler = (
 	err: Error | ApiError,
 	_req: Request,
 	res: Response,
-	_next: NextFunction,
+	next: NextFunction,
 ) => {
+	void next;
+
 	const status = (err as ApiError).statusCode || 500;
 	const message = err.message || 'Internal Server Error';
 
@@ -22,11 +24,20 @@ const errorHandler = (
 		logger.error(`[${status}] ${message}`);
 	}
 
-	res.status(status).json({
-		success: false,
+	const payload: {
+		status: 'error';
+		message: string;
+		errors?: unknown;
+	} = {
+		status: 'error',
 		message,
-		...(!env.IS_PRODUCTION && { stack: err.stack }),
-	});
+	};
+
+	if (Array.isArray((err as { errors?: unknown }).errors)) {
+		payload.errors = (err as { errors?: unknown }).errors;
+	}
+
+	res.status(status).json(payload);
 };
 
 export default errorHandler;
