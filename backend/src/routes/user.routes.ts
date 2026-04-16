@@ -1,9 +1,13 @@
-import { userController } from '@/controllers/index';
 import { Router } from 'express';
 
 const router = Router();
 
-// Example route
-router.get('/', userController.getAllUsers);
+// Temporary placeholder route while auth/users module is not implemented.
+router.get('/', (_req, res) => {
+	res.status(200).json({
+		status: 'success',
+		data: [],
+	});
+});
 
 export default router;

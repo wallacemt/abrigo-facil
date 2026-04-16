@@ -1,17 +1,29 @@
 import { Router } from 'express';
-import userRoutes from './user.routes';
+import { StatusController } from '@/controllers/status.controller';
+import authRoutes from '@/routes/auth.routes';
+import abrigoRoutes from '@/routes/abrigo.routes';
+import pessoaRoutes from '@/routes/pessoa.routes';
+import checkinRoutes from '@/routes/checkin.routes';
 
 const router = Router();
 
+
+
 // Health check
-router.get('/health', (_req, res) =>
+router.use('/health', (_req, res) =>
 	res.status(200).json({
-		status: 'OK',
-		timestamp: new Date().toISOString(),
+		status: 'success',
+		data: {
+			timestamp: new Date().toISOString(),
+		},
 	}),
 );
 
 // All other route groups
-router.use('/users', userRoutes);
+router.use('/status', new StatusController().router);
+router.use('/auth', authRoutes);
+router.use('/abrigos', abrigoRoutes);
+router.use('/pessoas', pessoaRoutes);
+router.use('/checkin', checkinRoutes);
 
 export default router;
