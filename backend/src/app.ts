@@ -6,37 +6,28 @@ import rateLimit from 'express-rate-limit';
 import morganMiddleware from '@/middlewares/morgan.middleware';
 import errorHandler from '@/middlewares/errorHandler';
 import { notFoundHandler } from '@/middlewares/notFoundHandler';
-import { env } from './config/env';
-import { StatusController } from './controllers/status.controller';
-
+import { env } from '@/config/env';
+import routes from '@/routes';
 
 class App {
 	app: Application;
+
 	constructor() {
 		this.app = express();
 		this.config();
 		this.routes();
+		this.errorHandling();
 	}
-	routes() {
-		this.app.use('/status', new StatusController().router);
+
+	private routes() {
+		this.app.use('/api', routes);
+		this.app.use('/', (_req, res) => {
+			res.redirect('/api/health');
+		});
 	}
-	config() {
-		this.app.use(
-			cors({
-				origin: env.FRONTEND_URL,
-				methods: ['GET', 'POST', 'PUT', 'DELETE'],
-			}),
-		);
-		// this.app.use(requestLogger);
-		this.app.use(express.json());
 
-		// Error Handling
-		this.app.use(notFoundHandler);
-		this.app.use(errorHandler);
-
-		// Body Parsing
-		this.app.use(express.json({ limit: '10mb' }));
-		this.app.use(express.urlencoded({ extended: true }));
+	private config() {
+		this.app.disable('x-powered-by');
 
 		// Logging
 		this.app.use(morganMiddleware);
@@ -51,6 +42,23 @@ class App {
 				standardHeaders: true,
 			}),
 		);
+
+		// CORS
+		this.app.use(
+			cors({
+				origin: env.CORS_ORIGIN,
+				methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+			}),
+		);
+
+		// Body Parsing
+		this.app.use(express.json({ limit: '10mb' }));
+		this.app.use(express.urlencoded({ extended: true }));
+	}
+
+	private errorHandling() {
+		this.app.use(notFoundHandler);
+		this.app.use(errorHandler);
 	}
 }
 

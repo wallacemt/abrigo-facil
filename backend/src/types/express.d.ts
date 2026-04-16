@@ -4,7 +4,9 @@ declare module 'express' {
 	export interface Request {
 		user?: {
 			id: string;
-			role: string;
+			email: string;
+			perfil: 'voluntario' | 'coordenador';
+			role?: 'voluntario' | 'coordenador';
 		};
 	}
 }
