@@ -76,3 +76,21 @@ export const authMiddleware = (
 		);
 	}
 };
+
+export const authorizeRoles =
+	(...allowedRoles: PerfilUsuario[]) =>
+	(req: Request, _res: Response, next: NextFunction): void => {
+		const userPerfil = req.user?.perfil;
+
+		if (!userPerfil || !allowedRoles.includes(userPerfil)) {
+			next(
+				new ApiError(
+					Constants.HTTP_STATUS.UNAUTHORIZED,
+					'Usuário não possui permissão para executar esta ação.',
+				),
+			);
+			return;
+		}
+
+		next();
+	};
