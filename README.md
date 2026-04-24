@@ -38,7 +38,7 @@ O **AbrigoFácil** é uma plataforma web com mapa interativo onde:
 - Interface web responsiva construída com **Next.js 14+**
 - Comunicação com a API realizada via **Server Actions / Route Handlers** (server-side), mantendo o front-end desacoplado do back-end
 - O Next.js atua como BFF (Backend for Frontend), fazendo as chamadas HTTP para a API Express a partir do servidor, sem expor a URL da API diretamente ao browser
-- Mapa interativo com **Leaflet.js** para visualização dos abrigos
+- Mapa interativo com **chadcn/map** para visualização dos abrigos
 - Principais páginas:
   - `/` — Mapa com abrigos e filtro por vagas disponíveis
   - `/abrigos` — Listagem e cadastro de abrigos
