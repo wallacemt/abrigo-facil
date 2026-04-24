@@ -3,6 +3,7 @@ import { QueryExecutor, db } from '@/config/database';
 export interface Abrigo {
 	id: string;
 	nome: string;
+	codigo_checkin: string;
 	endereco: string;
 	latitude: number;
 	longitude: number;
@@ -74,6 +75,7 @@ export const abrigoModel = {
 			`SELECT
 				a.id,
 				a.nome,
+				a.codigo_checkin,
 				a.endereco,
 				a.latitude::float8 AS latitude,
 				a.longitude::float8 AS longitude,
@@ -95,6 +97,7 @@ export const abrigoModel = {
 			`SELECT
 				id,
 				nome,
+				codigo_checkin,
 				endereco,
 				latitude::float8 AS latitude,
 				longitude::float8 AS longitude,
@@ -105,6 +108,27 @@ export const abrigoModel = {
 			 WHERE id = $1
 			 LIMIT 1`,
 			[id],
+		);
+
+		return result.rows[0] ?? null;
+	},
+
+	async findByCodigo(codigo: string): Promise<Abrigo | null> {
+		const result = await db.query<Abrigo>(
+			`SELECT
+				id,
+				nome,
+				codigo_checkin,
+				endereco,
+				latitude::float8 AS latitude,
+				longitude::float8 AS longitude,
+				capacidade_total,
+				vagas_disponiveis,
+				ativo
+			 FROM abrigos
+			 WHERE codigo_checkin = $1
+			 LIMIT 1`,
+			[codigo.toUpperCase()],
 		);
 
 		return result.rows[0] ?? null;
@@ -137,14 +161,24 @@ export const abrigoModel = {
 
 	async create(
 		input: CreateAbrigoInput,
-	): Promise<Pick<Abrigo, 'id' | 'nome' | 'vagas_disponiveis'>> {
+	): Promise<
+		Pick<Abrigo, 'id' | 'nome' | 'vagas_disponiveis' | 'codigo_checkin'>
+	> {
 		const result = await db.query<
-			Pick<Abrigo, 'id' | 'nome' | 'vagas_disponiveis'>
+			Pick<Abrigo, 'id' | 'nome' | 'vagas_disponiveis' | 'codigo_checkin'>
 		>(
 			`INSERT INTO abrigos
-				(nome, endereco, latitude, longitude, capacidade_total, vagas_disponiveis)
-			 VALUES ($1, $2, $3, $4, $5, $5)
-			 RETURNING id, nome, vagas_disponiveis`,
+				(nome, endereco, latitude, longitude, capacidade_total, vagas_disponiveis, codigo_checkin)
+			 VALUES (
+			 	$1,
+			 	$2,
+			 	$3,
+			 	$4,
+			 	$5,
+			 	$5,
+			 	UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 3) || '-' || SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 3))
+			 )
+			 RETURNING id, nome, vagas_disponiveis, codigo_checkin`,
 			[
 				input.nome,
 				input.endereco,
