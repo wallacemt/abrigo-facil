@@ -8,5 +8,10 @@ declare module 'express' {
 			perfil: 'voluntario' | 'coordenador';
 			role?: 'voluntario' | 'coordenador';
 		};
+		validated?: {
+			body?: unknown;
+			query?: unknown;
+			params?: unknown;
+		};
 	}
 }

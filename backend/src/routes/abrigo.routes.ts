@@ -6,7 +6,7 @@ import {
 	listAbrigos,
 	updateAbrigoVagas,
 } from '@/controllers/abrigo.controller';
-import { authMiddleware } from '@/middlewares/auth.middleware';
+import { authMiddleware, authorizeRoles } from '@/middlewares/auth.middleware';
 import { validate } from '@/middlewares/validate';
 import {
 	abrigoIdParamSchema,
@@ -22,18 +22,21 @@ router.get('/:id', validate({ params: abrigoIdParamSchema }), getAbrigoDetails);
 router.post(
 	'/',
 	authMiddleware,
+	authorizeRoles('coordenador'),
 	validate({ body: createAbrigoSchema }),
 	createAbrigo,
 );
 router.patch(
 	'/:id/vagas',
 	authMiddleware,
+	authorizeRoles('coordenador'),
 	validate({ params: abrigoIdParamSchema, body: updateVagasSchema }),
 	updateAbrigoVagas,
 );
 router.patch(
 	'/:id/desativar',
 	authMiddleware,
+	authorizeRoles('coordenador'),
 	validate({ params: abrigoIdParamSchema }),
 	deactivateAbrigo,
 );
