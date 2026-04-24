@@ -1,23 +1,16 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '@/middlewares/asyncHandler';
-
-import ApiError from '@/utils/ApiError';
 import { Constants } from '@/config/constants';
 import {
 	CreateAbrigoInput,
 	ListAbrigoQuery,
 	UpdateVagasInput,
 } from '@/schemas/abrigo.schema';
-import { abrigoModel } from '@/models/abrigo.model';
+import { abrigoService } from '@/services/abrigo.service';
 
 export const listAbrigos = asyncHandler(async (req: Request, res: Response) => {
-	const query = req.query as unknown as ListAbrigoQuery;
-
-	const data = await abrigoModel.list({
-		lat: query.lat,
-		lng: query.lng,
-		apenasComVagas: query.apenas_com_vagas,
-	});
+	const query = (req.validated?.query ?? req.query) as ListAbrigoQuery;
+	const data = await abrigoService.list(query);
 
 	res.status(Constants.HTTP_STATUS.OK).json({
 		status: 'success',
@@ -27,15 +20,8 @@ export const listAbrigos = asyncHandler(async (req: Request, res: Response) => {
 
 export const getAbrigoDetails = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params as { id: string };
-
-		const data = await abrigoModel.getDetails(id);
-		if (!data) {
-			throw new ApiError(
-				Constants.HTTP_STATUS.NOT_FOUND,
-				'Abrigo não encontrado.',
-			);
-		}
+		const { id } = (req.validated?.params ?? req.params) as { id: string };
+		const data = await abrigoService.details(id);
 
 		res.status(Constants.HTTP_STATUS.OK).json({
 			status: 'success',
@@ -46,9 +32,8 @@ export const getAbrigoDetails = asyncHandler(
 
 export const createAbrigo = asyncHandler(
 	async (req: Request, res: Response) => {
-		const input = req.body as CreateAbrigoInput;
-
-		const data = await abrigoModel.create(input);
+		const input = (req.validated?.body ?? req.body) as CreateAbrigoInput;
+		const data = await abrigoService.create(input);
 
 		res.status(Constants.HTTP_STATUS.CREATED).json({
 			status: 'success',
@@ -59,39 +44,9 @@ export const createAbrigo = asyncHandler(
 
 export const updateAbrigoVagas = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params as { id: string };
-		const input = req.body as UpdateVagasInput;
-
-		const abrigo = await abrigoModel.findById(id);
-		if (!abrigo) {
-			throw new ApiError(
-				Constants.HTTP_STATUS.NOT_FOUND,
-				'Abrigo não encontrado.',
-			);
-		}
-
-		if (!abrigo.ativo) {
-			throw new ApiError(
-				Constants.HTTP_STATUS.BAD_REQUEST,
-				'Não é possível atualizar vagas de abrigo desativado.',
-			);
-		}
-
-		const data = await abrigoModel.updateVagas(id, input.vagas_disponiveis);
-		if (!data) {
-			throw new ApiError(
-				Constants.HTTP_STATUS.BAD_REQUEST,
-				'Valor de vagas inválido para a capacidade do abrigo.',
-				true,
-				[
-					{
-						field: 'vagas_disponiveis',
-						message:
-							'O valor deve ser menor ou igual à capacidade total.',
-					},
-				],
-			);
-		}
+		const { id } = (req.validated?.params ?? req.params) as { id: string };
+		const input = (req.validated?.body ?? req.body) as UpdateVagasInput;
+		const data = await abrigoService.updateVagas(id, input);
 
 		res.status(Constants.HTTP_STATUS.OK).json({
 			status: 'success',
@@ -102,15 +57,8 @@ export const updateAbrigoVagas = asyncHandler(
 
 export const deactivateAbrigo = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params as { id: string };
-		const success = await abrigoModel.deactivate(id);
-
-		if (!success) {
-			throw new ApiError(
-				Constants.HTTP_STATUS.NOT_FOUND,
-				'Abrigo não encontrado.',
-			);
-		}
+		const { id } = (req.validated?.params ?? req.params) as { id: string };
+		await abrigoService.deactivate(id);
 
 		res.status(Constants.HTTP_STATUS.OK).json({
 			status: 'success',

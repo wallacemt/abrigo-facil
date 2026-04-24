@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '@/middlewares/asyncHandler';
-import { pessoaModel } from '@/models';
 import { Constants } from '@/config/constants';
 import { BuscarPessoaQuery, CreatePessoaInput } from '@/schemas/pessoa.schema';
+import { pessoaService } from '@/services/pessoa.service';
 
 export const createPessoa = asyncHandler(
 	async (req: Request, res: Response) => {
-		const input = req.body as CreatePessoaInput;
-		const data = await pessoaModel.create(input);
+		const input = (req.validated?.body ?? req.body) as CreatePessoaInput;
+		const data = await pessoaService.create(input);
 
 		res.status(Constants.HTTP_STATUS.CREATED).json({
 			status: 'success',
@@ -18,8 +18,8 @@ export const createPessoa = asyncHandler(
 
 export const buscarPessoas = asyncHandler(
 	async (req: Request, res: Response) => {
-		const query = req.query as unknown as BuscarPessoaQuery;
-		const data = await pessoaModel.searchByName(query.nome);
+		const query = (req.validated?.query ?? req.query) as BuscarPessoaQuery;
+		const data = await pessoaService.search(query);
 
 		res.status(Constants.HTTP_STATUS.OK).json({
 			status: 'success',

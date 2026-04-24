@@ -1,92 +1,36 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '@/middlewares/asyncHandler';
 import { CreateCheckinInput } from '@/schemas/checkin.schema';
-import { abrigoModel, checkinModel, pessoaModel } from '@/models';
-import ApiError from '@/utils/ApiError';
 import { Constants } from '@/config/constants';
-import { db } from '@/config/database';
+import { checkinService } from '@/services/checkin.service';
 
 export const createCheckin = asyncHandler(
 	async (req: Request, res: Response) => {
-		const input = req.body as CreateCheckinInput;
+		const input = (req.validated?.body ?? req.body) as CreateCheckinInput;
 		const usuarioId = req.user?.id;
-
-		const pessoa = await pessoaModel.findById(input.pessoa_id);
-		if (!pessoa) {
-			throw new ApiError(
-				Constants.HTTP_STATUS.NOT_FOUND,
-				'Pessoa não encontrada.',
-			);
-		}
-
-		const activeCheckin = await checkinModel.findActiveByPessoaId(
-			input.pessoa_id,
-		);
-		if (activeCheckin) {
-			throw new ApiError(
-				Constants.HTTP_STATUS.CONFLICT,
-				'Pessoa já possui check-in ativo em um abrigo.',
-			);
-		}
-
-		const transactionResult = await db.withTransaction(async (client) => {
-			const abrigo = await abrigoModel.decrementVagas(
-				client,
-				input.abrigo_id,
-			);
-			if (!abrigo) {
-				throw new ApiError(
-					Constants.HTTP_STATUS.CONFLICT,
-					'Abrigo indisponível, lotado ou desativado.',
-				);
-			}
-
-			const checkin = await checkinModel.create(client, {
-				pessoa_id: input.pessoa_id,
-				abrigo_id: input.abrigo_id,
-				usuario_id: usuarioId,
-			});
-
-			const pessoaAtualizada = await pessoaModel.updateStatus(
-				client,
-				input.pessoa_id,
-				'em_abrigo',
-			);
-
-			if (!pessoaAtualizada) {
-				throw new ApiError(
-					Constants.HTTP_STATUS.NOT_FOUND,
-					'Pessoa não encontrada.',
-				);
-			}
-
-			return {
-				checkin,
-				abrigo,
-				pessoa: pessoaAtualizada,
-			};
-		});
+		const { isRecoveredMissing, result } =
+			await checkinService.createByCode(input, usuarioId);
 
 		res.status(Constants.HTTP_STATUS.CREATED).json({
 			status: 'success',
-			...(pessoa.status === 'desaparecida'
+			...(isRecoveredMissing
 				? {
 						message:
 							'Pessoa com registro de desaparecida localizada automaticamente via check-in.',
 					}
 				: {}),
 			data: {
-				id: transactionResult.checkin.id,
+				id: result.checkin.id,
 				pessoa: {
-					id: transactionResult.pessoa.id,
-					nome: transactionResult.pessoa.nome,
-					status: transactionResult.pessoa.status,
+					id: result.pessoa.id,
+					nome: result.pessoa.nome,
+					status: result.pessoa.status,
 				},
 				abrigo: {
-					id: transactionResult.abrigo.id,
-					nome: transactionResult.abrigo.nome,
+					id: result.abrigo.id,
+					nome: result.abrigo.nome,
 				},
-				data_entrada: transactionResult.checkin.data_entrada,
+				data_entrada: result.checkin.data_entrada,
 			},
 		});
 	},
@@ -94,57 +38,8 @@ export const createCheckin = asyncHandler(
 
 export const registerCheckinExit = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params as { id: string };
-		const checkin = await checkinModel.findById(id);
-
-		if (!checkin) {
-			throw new ApiError(
-				Constants.HTTP_STATUS.NOT_FOUND,
-				'Check-in não encontrado.',
-			);
-		}
-
-		if (checkin.data_saida) {
-			throw new ApiError(
-				Constants.HTTP_STATUS.CONFLICT,
-				'Check-in já foi encerrado anteriormente.',
-			);
-		}
-
-		const closedCheckin = await db.withTransaction(async (client) => {
-			const registroSaida = await checkinModel.close(client, id);
-			if (!registroSaida) {
-				throw new ApiError(
-					Constants.HTTP_STATUS.CONFLICT,
-					'Não foi possível registrar saída do check-in.',
-				);
-			}
-
-			const pessoaAtualizada = await pessoaModel.updateStatus(
-				client,
-				registroSaida.pessoa_id,
-				'encontrada',
-			);
-			if (!pessoaAtualizada) {
-				throw new ApiError(
-					Constants.HTTP_STATUS.NOT_FOUND,
-					'Pessoa não encontrada.',
-				);
-			}
-
-			const abrigoAtualizado = await abrigoModel.incrementVagas(
-				client,
-				registroSaida.abrigo_id,
-			);
-			if (!abrigoAtualizado) {
-				throw new ApiError(
-					Constants.HTTP_STATUS.CONFLICT,
-					'Não foi possível atualizar vagas do abrigo no check-out.',
-				);
-			}
-
-			return registroSaida;
-		});
+		const { id } = (req.validated?.params ?? req.params) as { id: string };
+		const closedCheckin = await checkinService.registerExit(id);
 
 		res.status(Constants.HTTP_STATUS.OK).json({
 			status: 'success',
