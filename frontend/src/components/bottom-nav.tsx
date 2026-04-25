@@ -1,26 +1,14 @@
 "use client";
 
 import Cookies from "js-cookie";
-import {
-  Building2,
-  CheckCircle2,
-  MapPinned,
-  Search,
-  User2,
-  Phone,
-} from "lucide-react";
+import { Building2, CheckCircle2, MapPinned, Search, User2, Phone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
 
-import { Button } from "@/components/ui/button";
-import {
-  AUTH_AVATAR_COOKIE_NAME,
-  AUTH_NAME_COOKIE_NAME,
-  AUTH_PROFILE_COOKIE_NAME,
-} from "@/lib/auth-cookies";
+import { AUTH_AVATAR_COOKIE_NAME, AUTH_NAME_COOKIE_NAME, AUTH_PROFILE_COOKIE_NAME } from "@/lib/auth-cookies";
 import { cn } from "@/lib/utils";
 
 // -----------------------------
@@ -68,24 +56,18 @@ function BottomMenuItem({
       <button
         className={cn(
           "group flex flex-col items-center gap-1 transition-colors",
-          isActive
-            ? "text-primary"
-            : "text-muted-foreground hover:text-foreground",
+          isActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
         )}
       >
         <div
           className={cn(
             "p-3 rounded-2xl transition-all",
-            isActive
-              ? "bg-primary/10"
-              : "bg-transparent group-hover:bg-secondary",
+            isActive ? "bg-primary/10" : "bg-transparent group-hover:bg-secondary",
           )}
         >
           {icon}
         </div>
-        <span className="text-[11px] font-bold uppercase tracking-widest">
-          {label}
-        </span>
+        <span className="text-[11px] font-bold uppercase tracking-widest">{label}</span>
       </button>
     </Link>
   );
@@ -98,8 +80,7 @@ export function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const [session, setSession] =
-    useState<SessionResponse["data"] | null>(null);
+  const [session, setSession] = useState<SessionResponse["data"] | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   const isAuthRoute = pathname?.startsWith("/auth");
@@ -167,12 +148,7 @@ export function BottomNav() {
         className="bg-background/80 backdrop-blur-xl border border-white/20 dark:border-white/10 px-6 py-3 rounded-[2.5rem] shadow-xl flex items-center gap-6"
       >
         {/* LEFT ITEMS */}
-        <BottomMenuItem
-          icon={<MapPinned size={22} />}
-          label="Mapa"
-          href="/"
-          isActive={pathname === "/"}
-        />
+        <BottomMenuItem icon={<MapPinned size={22} />} label="Mapa" href="/" isActive={pathname === "/"} />
 
         <BottomMenuItem
           icon={<Building2 size={22} />}
@@ -202,28 +178,28 @@ export function BottomNav() {
         <BottomMenuItem
           icon={
             loaded && isLoggedIn ? (
-              session?.usuario?.avatarUrl ? (
-                <span className="relative h-6 w-6 overflow-hidden rounded-full">
-                  <Image
-                    src={session.usuario.avatarUrl}
-                    alt="avatar"
-                    fill
-                    className="object-cover"
+              <motion.div
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="flex items-center justify-center w-6 h-6 bg-background/90 backdrop-blur-md shadow-sm text-foreground hover:bg-secondary/80 overflow-hidden "
+              >
+                {session?.usuario?.avatarUrl ? (
+                  <Image src={session.usuario.avatarUrl} alt="avatar" fill className="object-cover" />
+                ) : (
+                  <img
+                    src={`https://api.dicebear.com/7.x/notionists/svg?seed=${initials}`}
+                    alt="User"
+                    className="w-[95%] h-[95%] object-cover rounded-xl"
                   />
-                </span>
-              ) : (
-                <span className="text-xs font-bold">{initials}</span>
-              )
+                )}
+              </motion.div>
             ) : (
               <User2 size={22} />
             )
           }
           label="Perfil"
-          href={
-            isLoggedIn
-              ? "/perfil"
-              : "/auth/login?next=/perfil"
-          }
+          href={isLoggedIn ? "/perfil" : "/auth/login?next=/perfil"}
           isActive={pathname === "/perfil"}
         />
       </motion.div>

@@ -16,9 +16,11 @@ import { calculateDistance, useGeolocation } from "@/lib/geolocation";
 import { cn } from "@/lib/utils";
 import { fetchRequest } from "@/services/request";
 import type { Abrigo, ApiEnvelope } from "@/types/api";
+import { MapController } from "./map-control";
+import Image from "next/image";
 
 const DEFAULT_CENTER: [number, number] = [-30.0346, -51.2177];
-const PROXIMITY_RADIUS_KM = 10;
+export const PROXIMITY_RADIUS_KM = 10;
 
 // -----------------------------
 // Helpers
@@ -46,18 +48,11 @@ function useShelters() {
       setLoading(true);
       setError(null);
 
-      const response = await fetchRequest<ApiEnvelope<Abrigo[]>>(
-        "/api/abrigos",
-        { method: "GET" },
-      );
+      const response = await fetchRequest<ApiEnvelope<Abrigo[]>>("/api/abrigos", { method: "GET" });
 
       setAbrigos(response.data.data ?? []);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Não foi possível carregar os abrigos.",
-      );
+      setError(err instanceof Error ? err.message : "Não foi possível carregar os abrigos.");
     } finally {
       setLoading(false);
     }
@@ -76,12 +71,7 @@ function useShelters() {
 export function ShelterMapFullscreen() {
   const { abrigos, loading, error } = useShelters();
 
-  const {
-    location,
-    isLoading: locating,
-    error: locationError,
-    requestPermission,
-  } = useGeolocation();
+  const { location, isLoading: locating, error: locationError, requestPermission } = useGeolocation();
 
   // -----------------------------
   // Memoizações
@@ -96,12 +86,7 @@ export function ShelterMapFullscreen() {
     if (!location) return [];
 
     return abrigos.filter((abrigo) => {
-      const distance = calculateDistance(
-        location.latitude,
-        location.longitude,
-        abrigo.latitude,
-        abrigo.longitude,
-      );
+      const distance = calculateDistance(location.latitude, location.longitude, abrigo.latitude, abrigo.longitude);
       return distance <= PROXIMITY_RADIUS_KM;
     });
   }, [location, abrigos]);
@@ -112,20 +97,14 @@ export function ShelterMapFullscreen() {
   if (loading) return <MapStatus text="Carregando mapa de abrigos..." />;
 
   if (error) return <MapStatus text={error} error />;
-
+  
   // -----------------------------
   // Render
   // -----------------------------
   return (
-    <LeafletMap
-      center={center}
-      className="h-full w-full"
-      zoom={location ? 14 : 12}
-    >
+    <LeafletMap center={center} className=" overflow-y-hidden" zoom={location ? 14 : 12}>
       <MapTileLayer name="Mapa" />
-      <MapZoomControl />
-
-      <MapControls
+      <MapController
         location={location}
         locating={locating}
         locationError={locationError}
@@ -133,21 +112,13 @@ export function ShelterMapFullscreen() {
         proximityCount={proximityAbrigos.length}
       />
 
+
       {location && <UserRadius location={location} />}
 
-      {location && (
-        <UserMarker
-          location={location}
-          proximityCount={proximityAbrigos.length}
-        />
-      )}
+      {location && <UserMarker location={location} proximityCount={proximityAbrigos.length} />}
 
       {abrigos.map((abrigo) => (
-        <ShelterMarker
-          key={abrigo.id}
-          abrigo={abrigo}
-          userLocation={location}
-        />
+        <ShelterMarker key={abrigo.id} abrigo={abrigo} userLocation={location} />
       ))}
     </LeafletMap>
   );
@@ -158,53 +129,14 @@ export function ShelterMapFullscreen() {
 // -----------------------------
 function MapStatus({ text, error }: { text: string; error?: boolean }) {
   return (
-    <div className="flex h-full w-full items-center justify-center bg-background">
+    <div className="flex h-full w-full items-center justify-center bg-background flex-col gap-3">
+      <Image src={"/logo.png"} width={100} height={100} alt="app logo" className="animate-spin" />
       <p className={cn("text-sm", error && "text-destructive")}>{text}</p>
     </div>
   );
 }
 
-function MapControls({
-  location,
-  locating,
-  locationError,
-  requestPermission,
-  proximityCount,
-}: any) {
-  return (
-    <MapControlContainer className="top-1 right-1 z-[1000] flex flex-col items-end gap-2">
-      <Button
-        type="button"
-        variant={location ? "default" : "secondary"}
-        size="sm"
-        className="gap-2 rounded-full border shadow-sm"
-        onClick={requestPermission}
-        disabled={locating}
-      >
-        {locating ? (
-          <LoaderCircleIcon className="h-4 w-4 animate-spin" />
-        ) : (
-          <NavigationIcon className="h-4 w-4" />
-        )}
-        <span className="hidden sm:inline">
-          {location ? "Minha localização" : "Localizar-me"}
-        </span>
-      </Button>
 
-      {locationError && (
-        <div className="max-w-[14rem] rounded-2xl border border-destructive/20 bg-background/95 px-3 py-2 text-xs text-destructive shadow-lg backdrop-blur">
-          {locationError}
-        </div>
-      )}
-
-      {location && (
-        <div className="rounded-2xl border border-border/70 bg-background/95 px-3 py-2 text-xs text-muted-foreground shadow-lg backdrop-blur">
-          Raio ativo: {PROXIMITY_RADIUS_KM} km ({proximityCount} próximos)
-        </div>
-      )}
-    </MapControlContainer>
-  );
-}
 
 function UserRadius({ location }: any) {
   return (
@@ -230,13 +162,9 @@ function UserMarker({ location, proximityCount }: any) {
       <MapPopup>
         <div className="space-y-1">
           <p className="font-semibold">Sua localização</p>
-          <p className="text-xs text-muted-foreground">
-            Precisão: {Math.round(location.accuracy)}m
-          </p>
+          <p className="text-xs text-muted-foreground">Precisão: {Math.round(location.accuracy)}m</p>
           {proximityCount > 0 && (
-            <p className="text-xs font-semibold text-blue-600">
-              {proximityCount} abrigo(s) próximo(s)
-            </p>
+            <p className="text-xs font-semibold text-blue-600">{proximityCount} abrigo(s) próximo(s)</p>
           )}
         </div>
       </MapPopup>
@@ -248,24 +176,15 @@ function ShelterMarker({ abrigo, userLocation }: any) {
   return (
     <MapMarker
       position={[abrigo.latitude, abrigo.longitude]}
-      icon={
-        <MapPinIcon
-          className={cn("size-8 drop-shadow-sm", getMarkerColor(abrigo))}
-        />
-      }
+      icon={<MapPinIcon className={cn("size-8 drop-shadow-sm", getMarkerColor(abrigo))} />}
     >
       <MapPopup>
         <div className="space-y-1">
           <p className="font-semibold">{abrigo.nome}</p>
-          <p className="text-xs text-muted-foreground">
-            {abrigo.endereco}
-          </p>
-          <p className="text-xs font-semibold text-blue-700">
-            Código: {abrigo.codigo_checkin}
-          </p>
+          <p className="text-xs text-muted-foreground">{abrigo.endereco}</p>
+          <p className="text-xs font-semibold text-blue-700">Código: {abrigo.codigo_checkin}</p>
           <p className="text-xs">
-            Vagas: <strong>{abrigo.vagas_disponiveis}</strong> /
-            {abrigo.capacidade_total}
+            Vagas: <strong>{abrigo.vagas_disponiveis}</strong> /{abrigo.capacidade_total}
           </p>
 
           {userLocation && (

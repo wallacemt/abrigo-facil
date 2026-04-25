@@ -1,26 +1,44 @@
 "use client";
 
-import { BuildingIcon, CheckCircleIcon, MapIcon } from "lucide-react";
+import {
+  BuildingIcon,
+  CheckCircleIcon,
+  MapIcon,
+} from "lucide-react";
 import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
+import { motion } from "motion/react";
+
 import { AppBrand } from "@/components/app-brand";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
+import Image from "next/image";
 
 const features = [
   {
     icon: MapIcon,
     title: "Mapa em tempo real",
-    description: "Acompanhe abrigos, localização e proximidade em uma navegação direta.",
+    description:
+      "Visualize abrigos próximos e navegue com precisão durante situações críticas.",
+    img: "/abrig-2.avif",
   },
   {
     icon: CheckCircleIcon,
-    title: "Check-in assistido",
-    description: "Registre entradas e saídas com menos fricção e mais clareza operacional.",
+    title: "Check-in simplificado",
+    description:
+      "Registre entradas rapidamente e mantenha controle eficiente de ocupação.",
+    img: "/abrig-3.avif",
   },
   {
     icon: BuildingIcon,
-    title: "Gestão de abrigos",
-    description: "Acompanhe código de check-in, vagas e status com um painel enxuto.",
+    title: "Gestão inteligente",
+    description:
+      "Monitore vagas, status e operações em um painel direto e funcional.",
+    img: "/abrig-1.avif",
   },
 ];
 
@@ -31,60 +49,132 @@ interface AuthShellProps {
   footer?: ReactNode;
 }
 
-export function AuthShell({ title, description, children, footer }: AuthShellProps) {
+export function AuthShell({
+  title,
+  description,
+  children,
+  footer,
+}: AuthShellProps) {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // autoplay
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % features.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <main className="min-h-screen w-full bg-background">
       <div className="grid min-h-screen lg:grid-cols-[1.05fr_0.95fr]">
+        {/* LEFT */}
         <section className="flex flex-col justify-center px-6 py-10 sm:px-10 lg:px-14">
           <div className="mx-auto w-full max-w-md space-y-8">
-            <div className="flex items-center justify-between gap-4">
+            {/* header */}
+            <div className="flex items-center justify-between">
               <AppBrand />
               <ThemeToggle />
             </div>
 
+            {/* text */}
             <div className="space-y-3">
-              <span className="glass-chip inline-flex uppercase tracking-[0.22em] text-primary">AbrigoFácil</span>
-              <div className="space-y-2">
-                <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h1>
-                <p className="max-w-prose text-sm leading-6 text-muted-foreground sm:text-base">{description}</p>
-              </div>
+              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+                {title}
+              </h1>
+              <p className="text-sm text-muted-foreground sm:text-base">
+                {description}
+              </p>
             </div>
 
-            <div className="glass-surface rounded-[2rem] p-5 sm:p-6">{children}</div>
+            {/* form container */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="glass-surface rounded-[2rem] p-6 shadow-xl"
+            >
+              {children}
+            </motion.div>
 
-            {footer ? <div>{footer}</div> : null}
+            {footer && <div>{footer}</div>}
           </div>
         </section>
 
-        <section className="relative hidden overflow-hidden border-l border-border/70 bg-gradient-to-br from-primary/10 via-background to-emerald-500/10 lg:flex lg:items-center lg:justify-center">
-          <div className="absolute inset-0 opacity-[0.16] [background-image:radial-gradient(circle_at_top_left,_currentColor_1px,_transparent_1px)] [background-size:24px_24px]" />
+        {/* RIGHT */}
+        <section className="relative hidden overflow-hidden border-l border-border/70 lg:flex lg:items-center lg:justify-center">
+          {/* background glow */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-emerald-500/20" />
+          <div className="absolute -top-20 -left-20 h-72 w-72 rounded-full bg-primary/30 blur-3xl" />
+          <div className="absolute -bottom-20 -right-20 h-72 w-72 rounded-full bg-emerald-500/30 blur-3xl" />
+
           <div className="relative mx-auto w-full max-w-xl px-10">
-            <div className="mb-6 flex items-center justify-between">
-              <AppBrand compact />
-              <div className="glass-chip">AbrigoFácil em destaque</div>
-            </div>
-            <Carousel className="w-full">
-              <CarouselContent>
-                {features.map((feature) => (
-                  <CarouselItem key={feature.title}>
-                    <div className="flex min-h-[22rem] flex-col justify-center rounded-[2rem] border border-border/70 bg-background/80 p-8 shadow-2xl backdrop-blur-sm">
-                      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                        <feature.icon className="h-8 w-8" />
-                      </div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary/80">
-                        Experiência guiada
-                      </p>
-                      <h2 className="text-2xl font-semibold tracking-tight">{feature.title}</h2>
-                      <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground sm:text-base">
-                        {feature.description}
-                      </p>
-                    </div>
-                  </CarouselItem>
+            
+
+            {/* carousel */}
+            <div className="relative">
+              <Carousel className="w-full">
+                <CarouselContent
+                  style={{
+                    transform: `translateX(-${activeIndex * 100}%)`,
+                    transition: "transform 0.6s ease",
+                  }}
+                >
+                  {features.map((feature, index) => {
+                    const Icon = feature.icon;
+
+                    return (
+                      <CarouselItem key={feature.title}>
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{
+                            opacity: index === activeIndex ? 1 : 0.4,
+                            y: index === activeIndex ? 0 : 10,
+                          }}
+                          className="space-y-5"
+                        >
+                          <div className="overflow-hidden rounded-2xl shadow-lg">
+                            <Image
+                              src={feature.img}
+                              width={800}
+                              height={500}
+                              alt={feature.title}
+                              className="h-[660px] w-full object-cover"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <Icon className="h-5 w-5 text-primary" />
+                              <h3 className="text-lg font-semibold">
+                                {feature.title}
+                              </h3>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {feature.description}
+                            </p>
+                          </div>
+                        </motion.div>
+                      </CarouselItem>
+                    );
+                  })}
+                </CarouselContent>
+              </Carousel>
+
+              {/* indicators */}
+              <div className="mt-4 flex justify-center gap-2">
+                {features.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`h-2 rounded-full transition-all ${
+                      i === activeIndex
+                        ? "w-6 bg-primary"
+                        : "w-2 bg-muted"
+                    }`}
+                  />
                 ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-4" />
-              <CarouselNext className="right-4" />
-            </Carousel>
+              </div>
+            </div>
           </div>
         </section>
       </div>
