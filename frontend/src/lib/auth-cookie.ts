@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
+import { AUTH_COOKIE_NAME } from "./auth-cookies";
 
-export const AUTH_COOKIE_NAME = "abrigofacil.token";
+export { AUTH_COOKIE_NAME } from "./auth-cookies";
 
 export const AUTH_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 
