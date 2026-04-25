@@ -12,7 +12,10 @@ export function proxy(request: NextRequest): NextResponse {
 
   const loginUrl = request.nextUrl.clone();
   loginUrl.pathname = "/auth/login";
-  loginUrl.searchParams.set("next", `${request.nextUrl.pathname}${request.nextUrl.search}`);
+  loginUrl.searchParams.set(
+    "next",
+    `${request.nextUrl.pathname}${request.nextUrl.search}`,
+  );
 
   return NextResponse.redirect(loginUrl);
 }
