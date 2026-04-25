@@ -2,7 +2,13 @@
 
 import { MapPinIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Map as LeafletMap, MapMarker, MapPopup, MapTileLayer, MapZoomControl } from "@/components/ui/map";
+import {
+  Map as LeafletMap,
+  MapMarker,
+  MapPopup,
+  MapTileLayer,
+  MapZoomControl,
+} from "@/components/ui/map";
 import { cn } from "@/lib/utils";
 import { fetchRequest } from "@/services/request";
 import type { Abrigo, ApiEnvelope } from "@/types/api";
@@ -37,12 +43,18 @@ export function ShelterMap() {
       setError(null);
 
       try {
-        const response = await fetchRequest<ApiEnvelope<Abrigo[]>>("/api/abrigos", {
-          method: "GET",
-        });
+        const response = await fetchRequest<ApiEnvelope<Abrigo[]>>(
+          "/api/abrigos",
+          {
+            method: "GET",
+          },
+        );
         setAbrigos(response.data.data ?? []);
       } catch (requestError) {
-        const message = requestError instanceof Error ? requestError.message : "Não foi possível carregar os abrigos.";
+        const message =
+          requestError instanceof Error
+            ? requestError.message
+            : "Não foi possível carregar os abrigos.";
         setError(message);
       } finally {
         setLoading(false);
@@ -61,7 +73,11 @@ export function ShelterMap() {
   }, [abrigos]);
 
   if (loading) {
-    return <p className="text-sm text-muted-foreground">Carregando mapa de abrigos...</p>;
+    return (
+      <p className="text-sm text-muted-foreground">
+        Carregando mapa de abrigos...
+      </p>
+    );
   }
 
   if (error) {
@@ -77,28 +93,44 @@ export function ShelterMap() {
         <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-1 text-amber-700">
           Poucas vagas
         </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-1 text-red-700">Lotado</span>
+        <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-1 text-red-700">
+          Lotado
+        </span>
         <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-gray-700">
           Desativado
         </span>
       </div>
 
       <div className="h-[68vh] w-full overflow-hidden rounded-2xl border border-blue-100 bg-card p-2 shadow-sm sm:h-[74vh]">
-        <LeafletMap center={center} className="h-full w-full rounded-xl" zoom={12}>
+        <LeafletMap
+          center={center}
+          className="h-full w-full rounded-xl"
+          zoom={12}
+        >
           <MapTileLayer name="Mapa" />
           <MapZoomControl />
           {abrigos.map((abrigo) => (
             <MapMarker
               key={abrigo.id}
               position={[abrigo.latitude, abrigo.longitude]}
-              icon={<MapPinIcon className={cn("size-8 drop-shadow-sm", getMarkerColor(abrigo))} />}
+              icon={
+                <MapPinIcon
+                  className={cn(
+                    "size-8 drop-shadow-sm",
+                    getMarkerColor(abrigo),
+                  )}
+                />
+              }
             >
               <MapPopup>
                 <div className="space-y-1">
                   <p className="font-semibold">{abrigo.nome}</p>
-                  <p className="text-xs text-muted-foreground">{abrigo.endereco}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {abrigo.endereco}
+                  </p>
                   <p className="text-xs">
-                    Vagas: <strong>{abrigo.vagas_disponiveis}</strong> / {abrigo.capacidade_total}
+                    Vagas: <strong>{abrigo.vagas_disponiveis}</strong> /{" "}
+                    {abrigo.capacidade_total}
                   </p>
                 </div>
               </MapPopup>
