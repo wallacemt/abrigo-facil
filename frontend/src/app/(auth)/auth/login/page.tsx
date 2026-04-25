@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import { Eye, EyeClosed } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
+import { AuthShell } from "@/components/auth-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeClosed } from "lucide-react";
 
 interface LoginResponse {
   status: "success" | "error";
@@ -23,16 +23,14 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [nextPath, setNextPath] = useState("/abrigos");
+  const [nextPath, setNextPath] = useState("/perfil");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [showPass, setShowPass] = useState(false);
 
   useEffect(() => {
     const next = new URLSearchParams(window.location.search).get("next");
-    if (next) {
-      setNextPath(next);
-    }
+    setNextPath(next || "/perfil");
   }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -56,55 +54,78 @@ export default function LoginPage() {
       setMessage(`Bem-vindo(a), ${data.data?.usuario?.nome ?? "usuário"}!`);
       router.push(nextPath);
       router.refresh();
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Erro inesperado no login.");
+    } catch (_error) {
+      setMessage("Erro inesperado no login.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4 px-4 py-8">
-      <section className="rounded-2xl border bg-card p-5">
-        <h1 className="text-2xl font-bold">Entrar</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Use o login de voluntário/coordenador para operar o sistema.
+    <AuthShell
+      title="Entrar na sua conta"
+      description="Use sua conta de voluntário ou coordenador para continuar no AbrigoFácil."
+      footer={
+        <p className="text-sm text-muted-foreground">
+          Não tem conta?{" "}
+          <a className="font-medium text-primary underline-offset-4 hover:underline" href="/auth/cadastro">
+            Criar cadastro
+          </a>
         </p>
-
-        <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
+      }
+    >
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        <div className="space-y-2">
+          <label htmlFor="email" className="text-sm font-medium">
+            E-mail
+          </label>
           <Input
+            id="email"
             type="email"
-            placeholder="E-mail"
+            placeholder="seu@email.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
+            className="rounded-full"
           />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="senha" className="text-sm font-medium">
+            Senha
+          </label>
           <div className="relative flex items-center">
             <Input
-              type={showPass ?"text" :"password"}
-              placeholder="Senha"
+              id="senha"
+              type={showPass ? "text" : "password"}
+              placeholder="Sua senha"
               value={senha}
               onChange={(event) => setSenha(event.target.value)}
               required
+              className="rounded-full"
             />
-
-            <Button variant={"ghost"} className="absolute right-0" type="button" onClick={() => setShowPass(!showPass)}>
-              {showPass ? <Eye /> : <EyeClosed />}
+            <Button
+              variant="ghost"
+              className="absolute right-0 rounded-full"
+              type="button"
+              size="sm"
+              onClick={() => setShowPass(!showPass)}
+            >
+              {showPass ? <Eye className="h-4 w-4" /> : <EyeClosed className="h-4 w-4" />}
             </Button>
           </div>
-          <Button type="submit" className="w-full rounded-lg" disabled={loading}>
-            {loading ? "Entrando..." : "Entrar"}
-          </Button>
+        </div>
 
-          <Link href="/auth/cadastro" className="block">
-            <Button type="button" variant="outline" className="w-full rounded-lg">
-              Ir para cadastro
-            </Button>
-          </Link>
-        </form>
+        {message ? (
+          <p className="rounded-[1.25rem] bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-200">
+            {message}
+          </p>
+        ) : null}
 
-        {message ? <p className="mt-3 text-sm text-muted-foreground">{message}</p> : null}
-      </section>
-    </main>
+        <Button type="submit" className="w-full rounded-full" disabled={loading} size="lg">
+          {loading ? "Entrando..." : "Entrar"}
+        </Button>
+      </form>
+    </AuthShell>
   );
 }

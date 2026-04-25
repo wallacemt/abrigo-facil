@@ -36,9 +36,10 @@ export default function BuscarPessoaPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-4 px-4 py-6">
-      <section className="rounded-2xl border bg-card p-5">
-        <h1 className="text-2xl font-bold">Buscar Pessoa</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+      <section className="glass-surface rounded-[2rem] p-5">
+        <span className="glass-chip inline-flex text-primary uppercase tracking-[0.22em]">Busca</span>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Buscar pessoa</h1>
+        <p className="mt-1 text-sm leading-6 text-muted-foreground">
           Busca pública de pessoas desaparecidas e localizadas em abrigos.
         </p>
 
@@ -48,28 +49,24 @@ export default function BuscarPessoaPage() {
             value={nome}
             onChange={(event) => setNome(event.target.value)}
             required
+            className="rounded-full"
           />
-          <Button type="submit" disabled={loading} className="rounded-lg">
+          <Button type="submit" disabled={loading} className="rounded-full">
             {loading ? "Buscando..." : "Buscar"}
           </Button>
         </form>
 
-        {message ? (
-          <p className="mt-3 text-sm text-muted-foreground">{message}</p>
-        ) : null}
+        {message ? <p className="mt-3 text-sm text-muted-foreground">{message}</p> : null}
       </section>
 
       <section className="grid gap-3">
         {results.map((person) => (
-          <article key={person.id} className="rounded-xl border bg-card p-4">
+          <article key={person.id} className="glass-surface rounded-[1.5rem] p-4">
             <p className="text-sm font-semibold">{person.nome}</p>
-            <p className="text-xs text-muted-foreground">
-              Status: {person.status}
-            </p>
+            <p className="text-xs text-muted-foreground">Status: {person.status}</p>
             {person.abrigo_atual ? (
               <p className="mt-2 text-xs">
-                Abrigo: <strong>{person.abrigo_atual.nome}</strong> -{" "}
-                {person.abrigo_atual.endereco}
+                Abrigo: <strong>{person.abrigo_atual.nome}</strong> - {person.abrigo_atual.endereco}
               </p>
             ) : null}
           </article>

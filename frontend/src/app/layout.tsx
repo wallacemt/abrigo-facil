@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Geist_Mono, Manrope } from "next/font/google";
 import "./globals.css";
 import { MainNav } from "@/components/main-nav";
+import { BottomNav } from "@/components/bottom-nav";
+import { Providers } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -18,8 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "AbrigoFacil",
-  description:
-    "Plataforma de localizacao de abrigos e busca de pessoas desaparecidas.",
+  description: "Plataforma de localizacao de abrigos e busca de pessoas desaparecidas.",
 };
 
 export default function RootLayout({
@@ -30,18 +26,15 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={cn(
-        "h-full",
-        "antialiased",
-        geistSans.variable,
-        geistMono.variable,
-        "font-sans",
-        inter.variable,
-      )}
+      suppressHydrationWarning
+      className={cn("h-full", "antialiased", manrope.variable, geistMono.variable, "font-sans")}
     >
-      <body className="min-h-full flex flex-col">
-        <MainNav />
-        {children}
+      <body className="min-h-full flex flex-col pb-28 sm:pb-24">
+        <Providers>
+          <MainNav />
+          {children}
+          <BottomNav />
+        </Providers>
       </body>
     </html>
   );

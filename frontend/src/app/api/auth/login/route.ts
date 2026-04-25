@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { AUTH_COOKIE_MAX_AGE, AUTH_COOKIE_NAME } from "@/lib/auth-cookie";
+import { AUTH_AVATAR_COOKIE_NAME, AUTH_NAME_COOKIE_NAME, AUTH_PROFILE_COOKIE_NAME } from "@/lib/auth-cookies";
 import { callBackend, handleBffError, toNextResponse } from "@/lib/bff";
 
 export async function POST(request: Request): Promise<NextResponse> {
@@ -28,6 +29,8 @@ export async function POST(request: Request): Promise<NextResponse> {
 
         const usuario = payload.data?.usuario as { perfil?: string; nome?: string } | undefined;
 
+        cookieStore.delete(AUTH_AVATAR_COOKIE_NAME);
+
         cookieStore.set(AUTH_COOKIE_NAME, token, {
           httpOnly: true,
           sameSite: "lax",
@@ -37,7 +40,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         });
 
         if (usuario?.perfil) {
-          cookieStore.set("abrigofacil.perfil", usuario.perfil, {
+          cookieStore.set(AUTH_PROFILE_COOKIE_NAME, usuario.perfil, {
             httpOnly: false,
             sameSite: "lax",
             secure: process.env.NODE_ENV === "production",
@@ -47,7 +50,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         }
 
         if (usuario?.nome) {
-          cookieStore.set("abrigofacil.nome", usuario.nome, {
+          cookieStore.set(AUTH_NAME_COOKIE_NAME, usuario.nome, {
             httpOnly: false,
             sameSite: "lax",
             secure: process.env.NODE_ENV === "production",

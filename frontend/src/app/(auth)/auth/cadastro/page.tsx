@@ -1,10 +1,12 @@
 "use client";
 
+import { Eye, EyeClosed } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import { AuthShell } from "@/components/auth-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeClosed } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 interface RegisterResponse {
   status: "success" | "error";
@@ -44,7 +46,7 @@ export default function CadastroPage() {
       setSenha("");
       setPerfil("voluntario");
 
-      router.push('/auth/login')
+      router.push("/auth/login");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Erro inesperado no cadastro.");
     } finally {
@@ -53,50 +55,98 @@ export default function CadastroPage() {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4 px-4 py-8">
-      <section className="rounded-2xl border bg-card p-5">
-        <h1 className="text-2xl font-bold">Cadastro de Usuário</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Cadastre voluntários e coordenadores para operar o sistema.
+    <AuthShell
+      title="Criar cadastro"
+      description="Cadastre voluntários e coordenadores com a mesma experiência visual da página de login."
+      footer={
+        <p className="text-sm text-muted-foreground">
+          Já possui conta?{" "}
+          <Link className="font-medium text-primary underline-offset-4 hover:underline" href="/auth/login">
+            Fazer login
+          </Link>
         </p>
-
-        <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
-          <Input placeholder="Nome" value={nome} onChange={(event) => setNome(event.target.value)} required />
+      }
+    >
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        <div className="space-y-2">
+          <label htmlFor="nome" className="text-sm font-medium">
+            Nome
+          </label>
           <Input
+            id="nome"
+            placeholder="Nome completo"
+            value={nome}
+            onChange={(event) => setNome(event.target.value)}
+            required
+            className="rounded-full"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="cadastro-email" className="text-sm font-medium">
+            E-mail
+          </label>
+          <Input
+            id="cadastro-email"
             type="email"
-            placeholder="E-mail"
+            placeholder="seu@email.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
+            className="rounded-full"
           />
-          <div className="flex items-center relative">
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="cadastro-senha" className="text-sm font-medium">
+            Senha
+          </label>
+          <div className="relative flex items-center">
             <Input
+              id="cadastro-senha"
               type={showPass ? "text" : "password"}
               placeholder="Senha"
               value={senha}
               onChange={(event) => setSenha(event.target.value)}
               required
+              className="rounded-full"
             />
-            <Button variant={"ghost"} className="absolute right-0" type="button" onClick={() => setShowPass(!showPass)}>
+            <Button
+              variant="ghost"
+              className="absolute right-0 rounded-full"
+              type="button"
+              onClick={() => setShowPass(!showPass)}
+            >
               {showPass ? <Eye /> : <EyeClosed />}
             </Button>
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="perfil" className="text-sm font-medium">
+            Perfil
+          </label>
           <select
-            className="h-9 w-full rounded-3xl border border-transparent bg-input/50 px-3 text-sm"
+            id="perfil"
+            className="h-11 w-full rounded-full border border-input bg-background px-3 text-sm"
             value={perfil}
             onChange={(event) => setPerfil(event.target.value as "voluntario" | "coordenador")}
           >
             <option value="voluntario">Voluntário</option>
             <option value="coordenador">Coordenador</option>
           </select>
+        </div>
 
-          <Button type="submit" className="w-full rounded-lg" disabled={loading}>
-            {loading ? "Cadastrando..." : "Cadastrar"}
-          </Button>
-        </form>
+        {message ? (
+          <p className="rounded-[1.25rem] bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-200">
+            {message}
+          </p>
+        ) : null}
 
-        {message ? <p className="mt-3 text-sm text-muted-foreground">{message}</p> : null}
-      </section>
-    </main>
+        <Button type="submit" className="w-full rounded-full" disabled={loading}>
+          {loading ? "Cadastrando..." : "Cadastrar"}
+        </Button>
+      </form>
+    </AuthShell>
   );
 }
