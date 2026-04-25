@@ -22,6 +22,7 @@ interface SearchRow {
 	id: string;
 	nome: string;
 	status: PessoaStatus;
+	checkin_id: string | null;
 	abrigo_id: string | null;
 	abrigo_nome: string | null;
 	abrigo_endereco: string | null;
@@ -75,6 +76,7 @@ export const pessoaModel = {
 				p.id,
 				p.nome,
 				p.status,
+				c.id AS checkin_id,
 				a.id AS abrigo_id,
 				a.nome AS abrigo_nome,
 				a.endereco AS abrigo_endereco
@@ -93,6 +95,7 @@ export const pessoaModel = {
 			id: row.id,
 			nome: row.nome,
 			status: row.status,
+			checkin_id: row.checkin_id ?? undefined,
 			...(row.abrigo_id && row.abrigo_nome && row.abrigo_endereco
 				? {
 						abrigo_atual: {

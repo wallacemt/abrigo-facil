@@ -1,4 +1,4 @@
--- Active: 1770734243791@@127.0.0.1@5432@db_abrigo_facil
+
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 CREATE TABLE IF NOT EXISTS usuarios (

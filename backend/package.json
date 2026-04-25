@@ -7,7 +7,8 @@
 	"scripts": {
 		"dev": "tsx watch src/server.ts",
 		"build": "tsc && tsc-alias",
-		"start": "node --enable-source-maps dist/server.js",
+		"seed": "bun ./src/scripts/seed.ts",
+		"start": "node --menable-source-maps dist/server.js",
 		"lint": "eslint src --ext .ts --fix",
 		"format": "prettier --write \"src/**/*.ts\"",
 		"clean": "rimraf dist"

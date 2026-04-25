@@ -5,7 +5,7 @@ import logger from '@/utils/logger';
 import { closeDatabasePool } from '@/config/database';
 
 const server = app.listen(env.PORT, () => {
-	logger.info(`Server running at http://${env.SERVER_HOST}:${env.PORT}`);
+	logger.info(`Server running at ${env.SERVER_HOST}`);
 });
 
 let isShuttingDown = false;
