@@ -153,7 +153,7 @@ export default function AbrigosPage() {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-4 py-6 pb-32 sm:pb-20">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-4 pt-24 py-6 pb-42">
       <section className="glass-surface rounded-[2rem] p-5">
         <span className="glass-chip inline-flex text-primary uppercase tracking-[0.22em]">Abrigos</span>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">Gestão de abrigos</h1>
@@ -161,7 +161,7 @@ export default function AbrigosPage() {
           Visualize abrigos ativos, atualize vagas e mantenha o código de check-in sempre à mão.
         </p>
 
-        {canManageAbrigos ? (
+        {canManageAbrigos && (
           <div className="mt-4 space-y-4">
             {/* Location Picker */}
             {!showMapPicker ? (
@@ -213,7 +213,7 @@ export default function AbrigosPage() {
             <PlaceAutocomplete
               onPlaceSelect={handlePlaceSelect}
               placeholder="Buscar endereço..."
-              className="rounded-full"
+              className="rounded-full" 
             />
 
             {/* Form Inputs */}
@@ -292,11 +292,7 @@ export default function AbrigosPage() {
               </Button>
             </form>
           </div>
-        ) : (
-          <div className="mt-4 rounded-[1.25rem] border border-orange-500/30 bg-orange-50 px-3 py-2 text-sm text-orange-800">
-            Apenas usuários coordenadores podem cadastrar, atualizar vagas e desativar abrigos.
-          </div>
-        )}
+        ) }
 
         {message ? <p className="mt-3 text-sm text-muted-foreground">{message}</p> : null}
       </section>

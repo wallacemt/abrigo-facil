@@ -11,8 +11,6 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AUTH_AVATAR_COOKIE_NAME, AUTH_NAME_COOKIE_NAME, AUTH_PROFILE_COOKIE_NAME } from "@/lib/auth-cookies";
-import { getSupabaseBrowserClient, SUPABASE_AVATAR_BUCKET } from "@/lib/supabase";
-
 interface SessionResponse {
   status: string;
   data?: {
@@ -149,25 +147,15 @@ export default function ProfilePage() {
     setMensagem(null);
 
     try {
-      const supabaseBrowserClient = getSupabaseBrowserClient();
-      const fileExtension = avatarFile.name.split(".").pop()?.toLowerCase() || "jpg";
-      const filePath = `public/avatars/${Date.now()}-${crypto.randomUUID()}.${fileExtension}`;
+      const formData = new FormData();
+      formData.append("file", avatarFile);
+      const res = await fetch("/api/profile/image", { method: "POST", body: formData });
 
-      const { error: uploadError } = await supabaseBrowserClient.storage
-        .from(SUPABASE_AVATAR_BUCKET)
-        .upload(filePath, avatarFile, {
-          cacheControl: "3600",
-          upsert: true,
-          contentType: avatarFile.type,
-        });
-
-      if (uploadError) {
-        throw uploadError;
+      if (!res.ok) {
+        throw new Error("Error ao enviar imagem");
       }
-
-      const { data } = supabaseBrowserClient.storage.from(SUPABASE_AVATAR_BUCKET).getPublicUrl(filePath);
-      const avatarUrl = data.publicUrl;
-
+      const { data } = (await res.json()) as { data: { url: string } };
+      const avatarUrl = data.url;
       Cookies.set(AUTH_AVATAR_COOKIE_NAME, avatarUrl, { expires: 7 });
       setUsuario((current) => (current ? { ...current, avatarUrl } : current));
       setAvatarFile(null);
@@ -183,7 +171,8 @@ export default function ProfilePage() {
       }
       setMensagem("Foto de perfil atualizada com sucesso!");
       setTimeout(() => setMensagem(null), 3000);
-    } catch (_error) {
+    } catch (error) {
+      console.error(error);
       setMensagem("Não foi possível enviar a foto. Verifique o bucket do Supabase Storage.");
     } finally {
       setSavingAvatar(false);
@@ -205,7 +194,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-4 py-8 pb-32 sm:pb-20">
+    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-4 py-8 pb-42  ">
       <div className="flex items-center justify-between gap-4">
         <AppBrand compact />
         <ThemeToggle />

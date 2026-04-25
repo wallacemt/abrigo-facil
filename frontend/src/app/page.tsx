@@ -1,11 +1,6 @@
-"use client";
-
-import { ShelterMapFullscreen } from "@/components/shelter-map-fullscreen";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <main className="flex h-screen w-screen flex-col overflow-hidden">
-      <ShelterMapFullscreen />
-    </main>
-  );
+  
+  redirect('/map');
 }

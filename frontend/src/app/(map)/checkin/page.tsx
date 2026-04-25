@@ -132,7 +132,7 @@ export default function CheckinPage() {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-4 py-6 pb-32 sm:pb-20">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-4 pt-24 py-6 pb-32 sm:pb-20">
       <section className="glass-surface rounded-[2rem] p-5">
         <span className="glass-chip inline-flex text-primary uppercase tracking-[0.22em]">Check-in</span>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">Check-in por código</h1>

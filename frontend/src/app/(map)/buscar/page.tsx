@@ -35,7 +35,7 @@ export default function BuscarPessoaPage() {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-4 px-4 py-6">
+    <main className="mx-auto flex w-full max-w-4xl pt-24 flex-1 flex-col gap-4 px-4 py-6">
       <section className="glass-surface rounded-[2rem] p-5">
         <span className="glass-chip inline-flex text-primary uppercase tracking-[0.22em]">Busca</span>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">Buscar pessoa</h1>

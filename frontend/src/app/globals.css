@@ -183,3 +183,15 @@
     @apply font-[inherit];
   }
 }
+
+
+@layer components {
+  .glass-surface {
+    @apply bg-white/10 dark:bg-white/5 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-lg shadow-sm transition-all duration-300 cursor-pointer;
+  }
+  
+  .glass-surface:hover {
+    @apply bg-white/20 dark:bg-white/10 border-white/30 dark:border-white/20 shadow-md;
+  }
+}
+
