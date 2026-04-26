@@ -10,6 +10,7 @@ export interface Abrigo {
 	capacidade_total: number;
 	vagas_disponiveis: number;
 	ativo: boolean;
+	criado_por_usuario_id?: string | null;
 	distancia_km?: number;
 }
 
@@ -19,6 +20,7 @@ interface CreateAbrigoInput {
 	latitude: number;
 	longitude: number;
 	capacidade_total: number;
+	criado_por_usuario_id: string;
 }
 
 interface ListAbrigosFilters {
@@ -81,7 +83,8 @@ export const abrigoModel = {
 				a.longitude::float8 AS longitude,
 				a.capacidade_total,
 				a.vagas_disponiveis,
-				a.ativo
+				a.ativo,
+				a.criado_por_usuario_id
 				${distanceSelect}
 			 FROM abrigos a
 			 WHERE ${whereClauses.join(' AND ')}
@@ -103,7 +106,8 @@ export const abrigoModel = {
 				longitude::float8 AS longitude,
 				capacidade_total,
 				vagas_disponiveis,
-				ativo
+				ativo,
+				criado_por_usuario_id
 			 FROM abrigos
 			 WHERE id = $1
 			 LIMIT 1`,
@@ -124,7 +128,8 @@ export const abrigoModel = {
 				longitude::float8 AS longitude,
 				capacidade_total,
 				vagas_disponiveis,
-				ativo
+				ativo,
+				criado_por_usuario_id
 			 FROM abrigos
 			 WHERE codigo_checkin = $1
 			 LIMIT 1`,
@@ -168,7 +173,7 @@ export const abrigoModel = {
 			Pick<Abrigo, 'id' | 'nome' | 'vagas_disponiveis' | 'codigo_checkin'>
 		>(
 			`INSERT INTO abrigos
-				(nome, endereco, latitude, longitude, capacidade_total, vagas_disponiveis, codigo_checkin)
+				(nome, endereco, latitude, longitude, capacidade_total, vagas_disponiveis, codigo_checkin, criado_por_usuario_id)
 			 VALUES (
 			 	$1,
 			 	$2,
@@ -176,7 +181,8 @@ export const abrigoModel = {
 			 	$4,
 			 	$5,
 			 	$5,
-			 	UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 3) || '-' || SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 3))
+			 	UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 3) || '-' || SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 3)),
+			 	$6
 			 )
 			 RETURNING id, nome, vagas_disponiveis, codigo_checkin`,
 			[
@@ -185,6 +191,7 @@ export const abrigoModel = {
 				input.latitude,
 				input.longitude,
 				input.capacidade_total,
+				input.criado_por_usuario_id,
 			],
 		);
 
