@@ -28,11 +28,15 @@ export const abrigoService = {
 		return data;
 	},
 
-	async create(input: CreateAbrigoInput) {
-		return abrigoModel.create(input);
+	async create(input: CreateAbrigoInput, usuarioId: string) {
+
+		return abrigoModel.create({
+			...input,
+			criado_por_usuario_id: usuarioId,
+		});
 	},
 
-	async updateVagas(id: string, input: UpdateVagasInput) {
+	async updateVagas(id: string, input: UpdateVagasInput, usuarioId: string) {
 		const abrigo = await abrigoModel.findById(id);
 		if (!abrigo) {
 			throw new ApiError(
@@ -45,6 +49,13 @@ export const abrigoService = {
 			throw new ApiError(
 				Constants.HTTP_STATUS.BAD_REQUEST,
 				'Não é possível atualizar vagas de abrigo desativado.',
+			);
+		}
+
+		if (abrigo.criado_por_usuario_id !== usuarioId) {
+			throw new ApiError(
+				Constants.HTTP_STATUS.UNAUTHORIZED,
+				'Apenas o organizador que criou o abrigo pode alterar seus dados.',
 			);
 		}
 
@@ -67,7 +78,22 @@ export const abrigoService = {
 		return data;
 	},
 
-	async deactivate(id: string) {
+	async deactivate(id: string, usuarioId: string) {
+		const abrigo = await abrigoModel.findById(id);
+		if (!abrigo) {
+			throw new ApiError(
+				Constants.HTTP_STATUS.NOT_FOUND,
+				'Abrigo não encontrado.',
+			);
+		}
+
+		if (abrigo.criado_por_usuario_id !== usuarioId) {
+			throw new ApiError(
+				Constants.HTTP_STATUS.UNAUTHORIZED,
+				'Apenas o organizador que criou o abrigo pode desativá-lo.',
+			);
+		}
+
 		const success = await abrigoModel.deactivate(id);
 		if (!success) {
 			throw new ApiError(
