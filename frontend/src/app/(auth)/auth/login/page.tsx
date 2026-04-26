@@ -6,6 +6,7 @@ import { type FormEvent, useEffect, useState } from "react";
 import { AuthShell } from "@/components/auth-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 interface LoginResponse {
   status: "success" | "error";
@@ -68,9 +69,9 @@ export default function LoginPage() {
       footer={
         <p className="text-sm text-muted-foreground">
           Não tem conta?{" "}
-          <a className="font-medium text-primary underline-offset-4 hover:underline" href="/auth/cadastro">
+          <Link className="font-medium text-primary underline-offset-4 hover:underline" href="/auth/cadastro">
             Criar cadastro
-          </a>
+          </Link>
         </p>
       }
     >
@@ -117,7 +118,7 @@ export default function LoginPage() {
         </div>
 
         {message ? (
-          <p className="rounded-[1.25rem] bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-200">
+          <p className="rounded-[1.25rem] bg-gray-50 p-3 text-sm text-gray-400 dark:bg-gray-950 dark:text-gray-200">
             {message}
           </p>
         ) : null}
