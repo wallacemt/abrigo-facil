@@ -1,0 +1,327 @@
+{
+  "info": {
+    "_postman_id": "d3f4f892-7a65-4f2f-8a99-6f9dc2a0b801",
+    "name": "AbrigoFacil Backend API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+    "description": "Collection do backend AbrigoFacil (Express API)."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "abrigoId",
+      "value": ""
+    },
+    {
+      "key": "pessoaId",
+      "value": ""
+    },
+    {
+      "key": "checkinId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health e Status",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/status"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /auth/register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Joao Silva\",\n  \"email\": \"joao@example.com\",\n  \"senha\": \"SenhaForte123\",\n  \"perfil\": \"coordenador\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/auth/register"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"joao@example.com\",\n  \"senha\": \"SenhaForte123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/auth/login"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Abrigos",
+      "item": [
+        {
+          "name": "GET /abrigos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/abrigos"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /abrigos com filtros",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/abrigos?lat=-30.0346&lng=-51.2177&apenas_com_vagas=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["abrigos"],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "-30.0346"
+                },
+                {
+                  "key": "lng",
+                  "value": "-51.2177"
+                },
+                {
+                  "key": "apenas_com_vagas",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /abrigos/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/abrigos/{{abrigoId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /abrigos (coordenador)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Escola Municipal Centro\",\n  \"endereco\": \"Rua A, 123 - Centro\",\n  \"latitude\": -30.0346,\n  \"longitude\": -51.2177,\n  \"capacidade_total\": 120\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/abrigos"
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /abrigos/:id/vagas (coordenador)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vagas_disponiveis\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/abrigos/{{abrigoId}}/vagas"
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /abrigos/:id/desativar (coordenador)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/abrigos/{{abrigoId}}/desativar"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Pessoas",
+      "item": [
+        {
+          "name": "GET /pessoas/buscar",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pessoas/buscar?nome=maria",
+              "host": ["{{baseUrl}}"],
+              "path": ["pessoas", "buscar"],
+              "query": [
+                {
+                  "key": "nome",
+                  "value": "maria"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /pessoas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Maria Souza\",\n  \"descricao\": \"Ultima vez vista no bairro X\",\n  \"foto_url\": \"https://exemplo.com/foto.jpg\",\n  \"contato_buscador\": \"(51) 99999-9999\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/pessoas"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Checkin",
+      "item": [
+        {
+          "name": "POST /checkin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pessoa_id\": \"{{pessoaId}}\",\n  \"codigo_abrigo\": \"ABC-123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/checkin"
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /checkin/:id/saida",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/checkin/{{checkinId}}/saida"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

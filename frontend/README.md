@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend - AbrigoFacil
 
-## Getting Started
+Aplicacao web em Next.js responsavel por:
 
-First, run the development server:
+- mapa de abrigos e disponibilidade
+- gestao de abrigos (coordenador)
+- check-in/check-out de pessoas
+- busca de pessoas desaparecidas
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Stack
+
+- Next.js 16 (App Router)
+- React 19
+- Tailwind CSS 4
+- Radix UI
+- Leaflet + React Leaflet
+
+## Arquitetura Utilizada
+
+### 1) BFF (Backend for Frontend)
+
+O frontend nao chama diretamente o backend Express pelo browser. Em vez disso, usa Route Handlers em `src/app/api/*`.
+
+Fluxo:
+
+1. Componente React faz `fetch` para `/api/...` no proprio Next.js.
+2. Route Handler usa `callBackend()` (`src/lib/bff.ts`).
+3. O BFF injeta token (quando necessario), repassa query/body e devolve o payload original da API.
+
+Beneficios:
+
+- URL real do backend nao fica exposta no cliente.
+- Controle centralizado de erro, serializacao e autenticacao.
+- Facil trocar infraestrutura sem quebrar o app cliente.
+
+### 2) Autenticacao por cookies
+
+- Token JWT salvo em cookie HTTP-only: `abrigofacil.token`.
+- Cookies auxiliares para UI: perfil, nome e avatar.
+- Endpoints relevantes:
+  - `POST /api/auth/login`
+  - `GET /api/auth/session`
+  - `POST /api/auth/logout`
+
+### 3) Protecao de rotas
+
+O arquivo `src/proxy.ts` redireciona usuarios sem token para login em:
+
+- `/abrigos/*`
+- `/checkin/*`
+- `/buscar/*`
+
+### 4) Camada de requisicoes do cliente
+
+`src/services/request.ts` fornece um wrapper com:
+
+- timeout
+- parse seguro de resposta
+- erro tipado (`FetchError`)
+- retorno padronizado (data, status, headers)
+
+## Estrutura de Pastas (resumo)
+
+```text
+src/
+|- app/
+|  |- (auth)/              # paginas de autenticacao
+|  |- (map)/               # paginas principais do dominio
+|  `- api/                 # BFF handlers para o backend
+|- components/             # UI e componentes de dominio
+|- lib/                    # bff, auth cookies, config server
+|- services/               # cliente HTTP do frontend
+`- types/                  # contratos TypeScript
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Logicas de Interface
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Mapa como tela principal para descoberta de abrigos.
+- Tela de abrigos separada em abas (listar/adicionar), com componentes modulares.
+- Cadastro de abrigo com validacao local de nome, endereco, coordenadas e capacidade.
+- Controles de mapa com recentralizacao na geolocalizacao do usuario.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Variaveis de Ambiente
 
-## Learn More
+Crie `frontend/.env.local`:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+API_BASE_URL=http://localhost:3001
+SUPABASE_URL=...
+SUPABASE_ANON_KEY=...
+SUPABASE_AVATAR_BUCKET=...
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`API_BASE_URL` e obrigatoria e usada no servidor Next para montar chamadas do BFF.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts
 
-## Deploy on Vercel
+```bash
+npm run dev      # desenvolvimento
+npm run build    # build de producao
+npm run start    # executa build
+npm run lint     # biome check
+npm run format   # biome format
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Executando
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Aplicacao: `http://localhost:3000`

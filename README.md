@@ -40,7 +40,7 @@ O **AbrigoFácil** é uma plataforma web com mapa interativo onde:
 - O Next.js atua como BFF (Backend for Frontend), fazendo as chamadas HTTP para a API Express a partir do servidor, sem expor a URL da API diretamente ao browser
 - Mapa interativo com **chadcn/map** para visualização dos abrigos
 - Principais páginas:
-  - `/` — Mapa com abrigos e filtro por vagas disponíveis
+  - `/map` — Mapa com abrigos e filtro por vagas disponíveis
   - `/abrigos` — Listagem e cadastro de abrigos
   - `/checkin` — Registro de chegada de pessoa em abrigo
   - `/buscar` — Busca de pessoas desaparecidas por nome
@@ -81,57 +81,72 @@ Quatro tabelas principais com relacionamentos via chaves estrangeiras:
 
 ---
 
-## Como Rodar o Projeto
+## Como Rodar Localmente
 
-### Pré-requisitos
+### Pre-requisitos
 
 - Node.js 18+
+- Bun (scripts de migration/seed usam `bun run`)
 - PostgreSQL 15+
-- npm ou yarn
 
-### Back-end
+### 1) Backend
 
 ```bash
 cd backend
 npm install
 cp .env.example .env
-# Preencher variáveis no .env (DB, JWT_SECRET, PORT)
-npm run migrate   # Executa o schema SQL
+# configure DATABASE_URL, JWT_SECRET, FRONTEND_URL/CORS_ORIGIN
+npm run migrate
 npm run dev
 ```
 
-### Front-end
+Servidor padrao: `http://localhost:3001`
+
+### 2) Frontend
 
 ```bash
 cd frontend
 npm install
 cp .env.example .env.local
-# Preencher API_BASE_URL apontando para o back-end
+# configure API_BASE_URL=http://localhost:3001
 npm run dev
 ```
 
----
+Aplicacao padrao: `http://localhost:3000`
 
-## Variáveis de Ambiente
+## Variaveis de Ambiente (Resumo)
 
-### Back-end (`.env`)
+### Backend (`backend/.env`)
 
 ```env
+NODE_ENV=development
+DATABASE_URL=postgresql://usuario:senha@localhost:5432/abrigofacil
 PORT=3001
-DATABASE_URL=postgresql://usuario:senha@localhost:5432/abrifacil
-JWT_SECRET=sua_chave_secreta_aqui
+FRONTEND_URL=http://localhost:3000
+JWT_SECRET=sua_chave_secreta
 JWT_EXPIRES_IN=7d
-CORS_ORIGIN=http://localhost:3000
+SERVER_HOST=localhost
+LOG_LEVEL=info
+IS_PRODUCTION=false
 ```
 
-### Front-end (`.env.local`)
+Observacao: e obrigatorio definir `CORS_ORIGIN` ou `FRONTEND_URL`.
+
+### Frontend (`frontend/.env.local`)
 
 ```env
 API_BASE_URL=http://localhost:3001
+SUPABASE_URL=...
+SUPABASE_ANON_KEY=...
+SUPABASE_AVATAR_BUCKET=...
 ```
 
-> A variável `API_BASE_URL` é usada apenas server-side no Next.js. O browser nunca acessa a API diretamente.
 
+## Documentacao
+
+- Guia da API backend: `docs/backend-api.md`
+- README backend: `backend/README.md`
+- README frontend: `frontend/README.md`
 ---
 
 ## Documentação da API
@@ -139,27 +154,24 @@ API_BASE_URL=http://localhost:3001
 A documentação completa dos endpoints está disponível na **collection do Postman** incluída no repositório:
 
 ```
-docs/AbriFacil.postman_collection.json
+docs/AbrigoFacil.postman_collection.json
 ```
 
 Importe o arquivo no Postman para acessar todos os endpoints com exemplos de request/response.
 
 ---
 
-## Tecnologias Utilizadas
+## Tecnologias
 
-| Camada | Tecnologia |
-|---|---|
-| Front-end | Next.js 14, Tailwind CSS, shadcn + shadcn-map |
-| Back-end | Node.js, Express |
-| Banco de Dados | PostgreSQL |
-| Autenticação | JWT + Argon2id |
-| Validação | Zod |
-| Segurança | Helmet |
-| HTTP Client (SSR) | fetch nativo (Next.js server-side) |
+| Camada          | Stack                                                 |
+| --------------- | ----------------------------------------------------- |
+| Frontend        | Next.js 16, React 19, Tailwind CSS, Radix UI, Leaflet |
+| Backend         | Node.js, Express 5, TypeScript                        |
+| Banco           | PostgreSQL                                            |
+| Auth            | JWT + Argon2id                                        |
+| Validacao       | Zod                                                   |
+| Observabilidade | Pino + Morgan                                         |
 
----
-
-## Licença
+## Licenca
 
 MIT
