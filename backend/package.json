@@ -8,14 +8,11 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc && tsc-alias",
     "start": "bun dist/server.js",
-
     "seed": "bun run src/scripts/seed.ts",
     "migrate": "bun run src/scripts/migrationRunner.ts",
-
     "lint": "eslint 'src/**/*.ts' --fix",
     "format": "prettier --write 'src/**/*.ts'",
     "clean": "rimraf dist",
-
     "prepare": "npm run build",
     "rebuild": "npm run clean && npm run build",
     "check": "npm run lint && npm run format"
@@ -30,6 +27,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/pg": "^8.20.0",
     "argon2": "^0.44.0",
     "compression": "^1.8.1",
     "cors": "^2.8.5",
@@ -38,12 +36,12 @@
     "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.10.1",
     "pg": "^8.20.0",
     "pino": "^10.1.0",
     "pino-pretty": "^13.1.2",
     "uuid": "^14.0.0",
-    "zod": "^4.3.6",
-    "@types/pg": "^8.20.0"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/compression": "^1.8.1",
