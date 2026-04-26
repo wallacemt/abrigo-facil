@@ -44,9 +44,7 @@ export const MainNav = () => {
             >
               {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
             </button>
-            <button className="p-2 rounded-xl text-muted-foreground hover:bg-secondary/50 transition-colors">
-              <Heart size={20} />
-            </button>
+            
           </motion.div>
         </div>
       </div>
