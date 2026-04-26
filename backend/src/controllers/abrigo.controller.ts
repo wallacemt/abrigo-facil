@@ -33,7 +33,7 @@ export const getAbrigoDetails = asyncHandler(
 export const createAbrigo = asyncHandler(
 	async (req: Request, res: Response) => {
 		const input = (req.validated?.body ?? req.body) as CreateAbrigoInput;
-		const data = await abrigoService.create(input);
+		const data = await abrigoService.create(input, req.user!.id);
 
 		res.status(Constants.HTTP_STATUS.CREATED).json({
 			status: 'success',
@@ -46,7 +46,7 @@ export const updateAbrigoVagas = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = (req.validated?.params ?? req.params) as { id: string };
 		const input = (req.validated?.body ?? req.body) as UpdateVagasInput;
-		const data = await abrigoService.updateVagas(id, input);
+		const data = await abrigoService.updateVagas(id, input, req.user!.id);
 
 		res.status(Constants.HTTP_STATUS.OK).json({
 			status: 'success',
@@ -58,7 +58,7 @@ export const updateAbrigoVagas = asyncHandler(
 export const deactivateAbrigo = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = (req.validated?.params ?? req.params) as { id: string };
-		await abrigoService.deactivate(id);
+		await abrigoService.deactivate(id, req.user!.id);
 
 		res.status(Constants.HTTP_STATUS.OK).json({
 			status: 'success',
